@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with muso.  If not, see <http://www.gnu.org/licenses/>.
 
+use id3::TagLike;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;

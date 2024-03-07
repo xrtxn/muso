@@ -1,11 +1,14 @@
+use log::debug;
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{self, Receiver};
 use std::time::Duration;
 
+use notify::event::EventKind;
+use notify::RecursiveMode;
 use notify::Watcher as _;
-use notify::{DebouncedEvent, RecursiveMode};
+use notify_debouncer_full::{new_debouncer, DebounceEventResult};
 
 use crate::config::Config;
 use crate::sorting::{sort_file, sort_folder, Options};
@@ -43,78 +46,65 @@ impl Watcher {
 
         let (tx, rx) = mpsc::channel();
         let delay = Duration::from_secs(self.config.watch.every.unwrap_or(1));
-        let mut watcher = notify::watcher(tx, delay)?;
+        let mut debouncer = new_debouncer(delay, None, tx)?;
 
         for root in self.roots.keys() {
-            watcher.watch(root, RecursiveMode::Recursive)?;
+            debouncer.watcher().watch(root, RecursiveMode::Recursive)?;
         }
 
         log::info!("Watching libraries");
         self.watchloop(rx)
     }
 
-    fn watchloop(mut self, rx: Receiver<DebouncedEvent>) -> Result<()> {
+    fn watchloop(mut self, rx: Receiver<DebounceEventResult>) -> Result<()> {
         loop {
-            match rx.recv() {
-                Err(err) => {
-                    log::error!("{}", err);
-                    continue;
-                }
-
-                Ok(event) => match event {
-                    DebouncedEvent::Rescan => {
+            for result in &rx {
+                match result {
+                    Err(err) => {
+                        log::error!("{:?}", err);
                         continue;
                     }
 
-                    DebouncedEvent::Create(path) | DebouncedEvent::Rename(_, path) => {
-                        if self.is_ignored(&path) {
-                            self.ignore.remove(&path);
-                            continue;
-                        }
+                    Ok(event) => {
+                        for ev in event {
+                            debug!("{:?}", ev);
+                            match ev.event.kind {
+                                EventKind::Other => {
+                                    continue;
+                                }
 
-                        if let Some(root) = self.root_for(&path) {
-                            let library = &self.roots[&root];
-
-                            let options = Options {
-                                format: Cow::Borrowed(self.config.format_of(library).unwrap()),
-                                dryrun: false,
-                                recursive: true,
-                                exfat_compat: self.config.is_exfat_compat(library),
-                                remove_empty: true,
-                            };
-
-                            if path.is_dir() {
-                                match sort_folder(&root, &path, &options) {
-                                    Ok(report) => {
-                                        log::info!(
-                                            "Done: {} successful out of {} ({} failed)",
-                                            report.success,
-                                            report.total,
-                                            report.total - report.success
-                                        );
-
-                                        for new_path in report.new_paths {
-                                            self.ignore_path(new_path, &root)?;
+                                EventKind::Create(_) => {
+                                    for path in &ev.paths {
+                                        if self.is_ignored(&path) {
+                                            self.ignore.remove(path);
+                                            continue;
+                                        }
+                                        match self.move_files(path) {
+                                            Ok(_) => {}
+                                            Err(_) => continue,
+                                        };
+                                    }
+                                }
+                                EventKind::Modify(notify::event::ModifyKind::Name(
+                                    notify::event::RenameMode::Both,
+                                )) => {
+                                    //todo fix event duplication
+                                    for path in ev.paths.iter().skip(1).step_by(2) {
+                                        if self.is_ignored(path) {
+                                            self.ignore.remove(path);
+                                            continue;
+                                        }
+                                        match self.move_files(path) {
+                                            Ok(_) => {}
+                                            Err(_) => continue,
                                         }
                                     }
-
-                                    Err(e) => log::error!("{}", e),
                                 }
-                            } else {
-                                match sort_file(&root, &path, &options) {
-                                    Ok(new_path) => {
-                                        log::info!("Done: 1 successful out of 1 (0 failed)");
-                                        self.ignore_path(new_path, root)?;
-                                    }
-
-                                    Err(e) => log::error!("{}", e),
-                                }
+                                _ => {}
                             }
                         }
                     }
-
-                    _ => {}
-                },
+                }
             }
         }
     }
@@ -169,5 +159,59 @@ impl Watcher {
         }
 
         None
+    }
+
+    fn move_files(&mut self, path: &Path) -> Result<()> {
+        if let Some(root) = self.root_for(&path) {
+            let library = &self.roots[&root];
+
+            let options = Options {
+                format: Cow::Borrowed(self.config.format_of(library).unwrap()),
+                dryrun: false,
+                recursive: true,
+                exfat_compat: self.config.is_exfat_compat(library),
+                remove_empty: true,
+            };
+
+            if path.is_dir() {
+                match sort_folder(&root, &path, &options) {
+                    Ok(report) => {
+                        log::info!(
+                            "Done: {} successful out of {} ({} failed)",
+                            report.success,
+                            report.total,
+                            report.total - report.success
+                        );
+
+                        for new_path in report.new_paths {
+                            self.ignore_path(new_path, &root)?;
+                        }
+                        Ok(())
+                    }
+
+                    Err(e) => {
+                        log::error!("{}", e);
+                        Err(e)
+                    }
+                }
+            } else {
+                match sort_file(&root, &path, &options) {
+                    Ok(new_path) => {
+                        log::info!("Done: 1 successful out of 1 (0 failed)");
+                        self.ignore_path(new_path, root)?;
+                        Ok(())
+                    }
+
+                    Err(e) => {
+                        log::error!("{}", e);
+                        Err(e)
+                    }
+                }
+            }
+        } else {
+            Err(Error::InvalidRoot {
+                path: path.to_string_lossy().to_string(),
+            })
+        }
     }
 }

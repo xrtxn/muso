@@ -19,12 +19,12 @@ mod cli;
 mod error;
 mod logger;
 
+use clap::Parser;
 use std::env;
 use std::path::Path;
 use std::process;
 use std::str::FromStr;
 
-use clap::Clap;
 use human_panic::setup_panic;
 use muso::config::Config;
 use muso::format::ParsedFormat;

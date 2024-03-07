@@ -1,13 +1,7 @@
+use clap::Parser;
 use std::path::PathBuf;
 
-use clap::Clap;
-use clap::{crate_authors, crate_description, crate_name, crate_version};
-
-#[derive(Debug, Clap)]
-#[clap(name = crate_name!())]
-#[clap(about = crate_description!())]
-#[clap(author = crate_authors!())]
-#[clap(version = crate_version!())]
+#[derive(Debug, Parser)]
 pub struct CliArgs {
     /// Path to custom config file.
     #[clap(short, long)]
@@ -17,7 +11,7 @@ pub struct CliArgs {
     pub cmd: SubCommand,
 }
 
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 pub enum SubCommand {
     /// Copy service file to systemd user config dir.
     #[clap(name = "copy-service")]
