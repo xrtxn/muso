@@ -75,7 +75,7 @@ impl Watcher {
 
                                 EventKind::Create(_) => {
                                     for path in &ev.paths {
-                                        if self.is_ignored(&path) {
+                                        if self.is_ignored(path) {
                                             self.ignore.remove(path);
                                             continue;
                                         }
@@ -162,7 +162,7 @@ impl Watcher {
     }
 
     fn move_files(&mut self, path: &Path) -> Result<()> {
-        if let Some(root) = self.root_for(&path) {
+        if let Some(root) = self.root_for(path) {
             let library = &self.roots[&root];
 
             let options = Options {
@@ -174,7 +174,7 @@ impl Watcher {
             };
 
             if path.is_dir() {
-                match sort_folder(&root, &path, &options) {
+                match sort_folder(&root, path, &options) {
                     Ok(report) => {
                         log::info!(
                             "Done: {} successful out of {} ({} failed)",
@@ -195,7 +195,7 @@ impl Watcher {
                     }
                 }
             } else {
-                match sort_file(&root, &path, &options) {
+                match sort_file(&root, path, &options) {
                     Ok(new_path) => {
                         log::info!("Done: 1 successful out of 1 (0 failed)");
                         self.ignore_path(new_path, root)?;

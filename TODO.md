@@ -1,4 +1,2 @@
-- jsch
-- ssh2 (sftp)
-- libmdns (simpler, standalone?)
-- zeroconf (simple, avahi wrap)
+- add support for lyrics files (.txt, .lrc), cover images
+- better configuration and command line options

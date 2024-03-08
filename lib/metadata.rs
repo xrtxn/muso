@@ -119,36 +119,31 @@ impl Metadata {
     }
 
     fn from_vorbis_comments(comments: HashMap<String, Vec<String>>, ext: &str) -> Result<Self> {
-        let artist = if let Some(artist) = comments.get("ALBUMARTIST").and_then(|a| a.get(0)) {
+        let artist = if let Some(artist) = comments.get("ALBUMARTIST").and_then(|a| a.first()) {
             Some(artist.to_owned())
         } else {
             comments
                 .get("ARTIST")
-                .map(|a| a.get(0).map(|s| s.to_owned()))
-                .flatten()
+                .and_then(|a| a.first().map(|s| s.to_owned()))
         };
 
         let album = comments
             .get("ALBUM")
-            .map(|a| a.get(0).map(|s| s.to_owned()))
-            .flatten();
+            .and_then(|a| a.first().map(|s| s.to_owned()));
 
         let disc = comments
             .get("DISCNUMBER")
-            .map(|d| d.get(0).map(|s| s.parse::<u32>().ok()))
-            .flatten()
+            .and_then(|d| d.first().map(|s| s.parse::<u32>().ok()))
             .flatten();
 
         let track = comments
             .get("TRACKNUMBER")
-            .map(|t| t.get(0).map(|s| s.parse::<u32>().ok()))
-            .flatten()
+            .and_then(|t| t.first().map(|s| s.parse::<u32>().ok()))
             .flatten();
 
         let title = comments
             .get("TITLE")
-            .map(|t| t.get(0).map(|s| s.to_owned()))
-            .flatten();
+            .and_then(|t| t.first().map(|s| s.to_owned()));
 
         Ok(Metadata {
             artist,

@@ -129,8 +129,7 @@ impl Config {
     pub fn is_exfat_compat(&self, library: &str) -> bool {
         self.libraries
             .get(library)
-            .map(|library| library.exfat_compat)
-            .flatten()
+            .and_then(|library| library.exfat_compat)
             .unwrap_or(false)
     }
 }

@@ -171,19 +171,9 @@ impl ParsedFormat {
 
     fn replace(string: String, exfat_compat: bool) -> String {
         if exfat_compat {
-            string
-                .replace('/', "_")
-                .replace('"', "_")
-                .replace('*', "_")
-                .replace(':', "_")
-                .replace('<', "_")
-                .replace('>', "_")
-                .replace('\\', "_")
-                .replace('?', "_")
-                .replace('|', "_")
-                .replace('.', "_")
+            string.replace(['/', '"', '*', ':', '<', '>', '\\', '?', '|', '.'], "_")
         } else {
-            string.replace('/', "_").replace('.', "_")
+            string.replace(['/', '.'], "_")
         }
     }
 
