@@ -88,7 +88,6 @@ impl Watcher {
                                 EventKind::Modify(notify::event::ModifyKind::Name(
                                     notify::event::RenameMode::Both,
                                 )) => {
-                                    //todo fix event duplication
                                     for path in ev.paths.iter().skip(1).step_by(2) {
                                         if self.is_ignored(path) {
                                             self.ignore.remove(path);
@@ -121,11 +120,12 @@ impl Watcher {
             child: path.to_string_lossy().into(),
         })?;
 
+        //why is this necessary?
         if parent != root {
             self.ignore.insert(parent.to_path_buf());
         }
 
-        self.ignore.insert(path.to_path_buf());
+        self.ignore.insert(root.to_path_buf().join(path));
 
         Ok(())
     }
