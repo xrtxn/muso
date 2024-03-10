@@ -1,20 +1,3 @@
-// Copyright (C) 2020 kevin
-//
-// This file is part of muso.
-//
-// muso is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// muso is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with muso.  If not, see <http://www.gnu.org/licenses/>.
-
 mod cli;
 mod error;
 mod logger;
@@ -26,17 +9,17 @@ use std::process;
 use std::str::FromStr;
 
 use human_panic::setup_panic;
-use muso::config::Config;
-use muso::format::ParsedFormat;
-use muso::sorting::{sort_folder, Options};
-use muso::utils;
-use muso::watcher::Watcher;
+use musso::config::Config;
+use musso::format::ParsedFormat;
+use musso::sorting::{sort_folder, Options};
+use musso::utils;
+use musso::watcher::Watcher;
 
 use crate::cli::{CliArgs, SubCommand};
 use crate::error::Error;
 use crate::logger::init_logger;
 
-pub type AnyResult<T> = std::result::Result<T, anyhow::Error>;
+pub type AnyResult<T> = Result<T, anyhow::Error>;
 
 fn load_config(path: impl AsRef<Path>) -> AnyResult<Config> {
     let path = path.as_ref();
@@ -49,7 +32,7 @@ fn load_config(path: impl AsRef<Path>) -> AnyResult<Config> {
             } else {
                 utils::generate_resource(utils::Resource::Config, None)?;
             }
-        };
+        }
     }
 
     Ok(Config::from_path(path)?)
@@ -63,11 +46,11 @@ fn run(opts: CliArgs) -> AnyResult<()> {
         SubCommand::CopyService => {
             cfg_if::cfg_if! {
                 if #[cfg(feature = "standalone")] {
-                    utils::generate_resource(utils::Resource::Service, Some(include_str!("../share/muso.service")))?;
+                    utils::generate_resource(utils::Resource::Service, Some(include_str!("../share/musso.service")))?;
                 } else {
                     utils::generate_resource(utils::Resource::Service, None)?;
                 }
-            };
+            }
         }
 
         SubCommand::Watch => Watcher::new(config).watch()?,

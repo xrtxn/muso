@@ -1,2 +1,3 @@
+- ignore hidden directories
 - add support for lyrics files (.txt, .lrc), cover images
 - better configuration and command line options

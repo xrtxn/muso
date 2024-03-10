@@ -1,6 +1,6 @@
 [watch]
 every = 1 # second(s)
-# Specifies which libraries will be seen by muso
+# Specifies which libraries will be seen by musso
 libraries = [ 'default' ]
 
 [libraries.default]

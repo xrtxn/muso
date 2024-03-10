@@ -1,49 +1,21 @@
-<!--
- Copyright (C) 2020 kevin
- 
- This file is part of muso.
- 
- muso is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- 
- muso is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with muso.  If not, see <http://www.gnu.org/licenses/>.
--->
-
-<p align="center">
-    <!--  New lines go brrrr -->
-    <br>
-    <br>
-    <image src="logo/muso.png" alt="muso"></image>
-    <br>
-    <br>
-    <image src="https://github.com/quebin31/muso/workflows/CI%20(master)/badge.svg" alt="Continuous integration"></image>
-</p>
 
 ## About
 
-**muso** is a CLI tool that helps you to keep your music folder sorted. It's
-designed to be simple and fast, but also powerful and fully automated. Currently 
-**muso** supports MP3, FLAC, OGG, M4A and M4P.
+**musso** is a **mus**ic **so**rter CLI tool that helps you to keep your music folder sorted. It's
+designed to be simple and fast, but also powerful and fully automated. Currently, 
+**musso** supports MP3, FLAC, OGG, M4A and M4P. This project was forked from [muso](https://github.com/quebin31/muso).
 
 ## Building
-To build **muso** yourself you need at least Rust 1.41. If you aren't going 
-to install it using a package manager you should build **muso** with feature 
+To build **musso** yourself you need at least Rust 1.41. If you aren't going 
+to install it using a package manager you should build **musso** with feature 
 `standalone` activated, for example:
 
 ```bash
 cargo build --features standalone --release
 ```
 
-The standalone feature include contents of [service](share/muso.service) and 
-[config](share/config.toml) in binary, so **muso** can create these files by itself.
+The standalone feature include contents of [service](share/musso.service) and 
+[config](share/config.toml) in binary, so **musso** can create these files by itself.
 
 ## Installing
 To install from source using cargo (installed bin is in `$HOME/.cargo/bin`)
@@ -53,19 +25,23 @@ you can do the following:
 cargo install --path . --features standalone
 ```
 
-Package is also [available on the AUR](https://aur.archlinux.org/packages/muso) 
-for Arch Linux, just install it using your preferred method, for example:
+[//]: # (Package is also [available on the AUR]&#40;https://aur.archlinux.org/packages/musso&#41; )
 
-```bash
-yay -S muso
-```
+[//]: # (for Arch Linux, just install it using your preferred method, for example:)
+
+[//]: # ()
+[//]: # (```bash)
+
+[//]: # (yay -S musso)
+
+[//]: # (```)
 
 ## Concepts
 
 ### Format string
-**muso** is all about renaming and moving files around, but how it'll decide
+**musso** is all about renaming and moving files around, but how it'll decide
 where the new file will reside, or which is going to be its name? Fortunately
-you can tell **muso** how to rename your files with a *format string*. This
+you can tell **musso** how to rename your files with a *format string*. This
 string will build the new name (path) using one or more of the following
 placeholders:
 
@@ -76,7 +52,7 @@ placeholders:
 - `{title}`: Song title.
 - `{ext}`: File extension (e.g. `mp3`, `flac`)
 
-As an example, the default format that **muso** will use is the following.
+As an example, the default format that **musso** will use is the following.
 
 ```rs
 "{artist}/{album}/{track} - {title}.{ext}"
@@ -91,7 +67,7 @@ length that has to be achieved adding leading zeros. For example, using `{disc:2
 
 Finally, all of these placeholders (except `{ext}`) support an optional flag 
 (activated by adding a `?` before the `}`, e.g. `{artist?}`, `{disc:2?}`). 
-Renaming a file that doesn't have an specific tag doesn't fail but leaves empty 
+Renaming a file that doesn't have a specific tag doesn't fail but leaves empty 
 that placeholder in the string, however note that there are some rules:
 
 - Directory components cannot be optional (e.g. this is invalid `{artist}/{album?}/{title}.{ext}`)
@@ -105,7 +81,7 @@ file](share/config.toml).
 
 ### Libraries
 We recently talked about libraries, these objects are used in the [config
-file](share/config.toml) to provide **muso** settings while it's running in
+file](share/config.toml) to provide **musso** settings while it's running in
 *watcher* mode. For example, the default library provided in the [default config file](share/config.toml) is described as follows.
 
 ```toml
@@ -116,33 +92,32 @@ format = '{artist}/{album}/{track} - {title}.{ext}'
 folders = ['$HOME/Music']
 # If enabled, the rename will be compatible with exFAT
 exfat-compat = true
-
 ```
 
 They are used to provide different options, to different folders. 
 
 ### Config file
-**muso** will search for a config file in the following directories in order:
-- `$XDG_CONFIG_DIR/muso/config.toml`
-- `$HOME/.config/muso/config.toml`
+**musso** will search for a config file in the following directories in order:
+- `$XDG_CONFIG_DIR/musso/config.toml`
+- `$HOME/.config/musso/config.toml`
 
 It's also possible to indicate a custom path for config file with the
 `-c/--config` option. Config file is primary used when running in *watcher*
 mode, but it's also able to provide a default *format string* for certain
 folders while running in *oneshot* mode. For example, in the [default config
 file](share/config.toml) the default library specifies a format and a list of
-folders, if you would run **muso** on `$HOME/Music` without specifying a
+folders, if you would run **musso** on `$HOME/Music` without specifying a
 format, it'll try to grab it from the config file, if there isn't one that
-correspond to the folder it'll fallback to the [default](#format-string).
+correspond to the folder it'll fall back to the [default](#format-string).
 
 ## Usage
-**muso** can be used in two modes: *oneshot* and *watcher*. Both of them have 
+**musso** can be used in two modes: *oneshot* and *watcher*. Both of them have 
 similar functionalities, but as the naming suggest they perform it differently.
-Below we have the output of `muso --help`, which explains each option or flag available
+Below we have the output of `musso --help`, which explains each option or flag available
 
 ```
 USAGE:
-    muso [OPTIONS] <SUBCOMMAND>
+    musso [OPTIONS] <SUBCOMMAND>
 
 FLAGS:
     -h, --help       Prints help information
@@ -159,7 +134,7 @@ SUBCOMMANDS:
 ```
 
 ### Oneshot
-By the default, **muso** will run on the current working dir, but you can
+By the default, **musso** will run on the current working dir, but you can
 provide your own path as a free argument. Config file is optional in this mode.
 
 ### Watcher
@@ -169,15 +144,15 @@ of the [default config file](share/config.toml), the watcher can be configured.
 ```toml
 [watch]
 every = 1 # second(s)
-# Specifies which libraries will be seen by muso
+# Specifies which libraries will be seen by musso
 libraries = [ 'default' ]
 ```
 
 ### Systemd service
 It's recommended to invoke the *watcher* mode using the provided [service
-file](share/muso.service) for `systemd`, this way you can run **muso**
+file](share/musso.service) for `systemd`, this way you can run **musso**
 automatically on boot. Service file should be run on user level (`systemctl
---user`). The easiest way to copy the service file is running **muso** with
+--user`). The easiest way to copy the service file is running **musso** with
 `copy-service` subcommand.
 
 ## License

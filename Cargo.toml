@@ -1,15 +1,15 @@
 [package]
-authors = ["Kevin <quebin31@gmail.com>"]
+authors = ["Mihók Martin <mihok.martin@protonmail.com>"]
 edition = "2021"
-name = "muso"
-version = "2.0.0"
+name = "musso"
+version = "2.0.1"
 
 [[bin]]
-name = "muso"
+name = "musso"
 path = "cli/main.rs"
 
 [lib]
-name = "muso"
+name = "musso"
 path = "lib/lib.rs"
 
 [dependencies]

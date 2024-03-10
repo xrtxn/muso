@@ -38,7 +38,7 @@ jobs:
       - name: Build binary
         run: cargo build --release
       - name: Generate tarball
-        run: tar czf release.tar.gz share target/release/muso
+        run: tar czf release.tar.gz share target/release/musso
       - name: Set VERSION environment variable
         run: |
           version=$(echo $GITHUB_REF | cut -d '/' -f3)

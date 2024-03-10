@@ -1,9 +1,0 @@
-[Unit]
-Description=Muso watcher mode
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/env muso watch
-
-[Install]
-WantedBy=default.target

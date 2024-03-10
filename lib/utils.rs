@@ -1,20 +1,3 @@
-// Copyright (C) 2020 Kevin Dc
-//
-// This file is part of muso.
-//
-// muso is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// muso is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with muso.  If not, see <http://www.gnu.org/licenses/>.
-
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -23,14 +6,14 @@ use crate::{Error, Result};
 
 #[inline]
 pub fn default_config_path() -> PathBuf {
-    dirs::config_dir().unwrap().join("muso/config.toml")
+    dirs::config_dir().unwrap().join("musso/config.toml")
 }
 
 #[inline]
 pub fn default_service_path() -> PathBuf {
     dirs::config_dir()
         .unwrap()
-        .join("systemd/user/muso.service")
+        .join("systemd/user/musso.service")
 }
 
 pub fn maybe_create_dir(path: impl AsRef<Path>) -> std::io::Result<()> {
@@ -62,8 +45,8 @@ pub fn generate_resource(res: Resource, default: Option<&str>) -> Result<()> {
     log::info!("Generating {} file", name);
 
     let shared = match res {
-        Resource::Config => Path::new("/usr/share/muso/config.toml"),
-        Resource::Service => Path::new("/usr/share/muso/muso.service"),
+        Resource::Config => Path::new("/usr/share/musso/config.toml"),
+        Resource::Service => Path::new("/usr/share/musso/musso.service"),
     };
 
     if !shared.exists() {
