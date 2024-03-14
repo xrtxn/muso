@@ -45,7 +45,7 @@ impl Watcher {
         }
 
         let (tx, rx) = mpsc::channel();
-        let delay = Duration::from_secs(self.config.watch.every.unwrap_or(1));
+        let delay = Duration::from_secs(self.config.watch.every.unwrap_or_else(|| 1));
         let mut debouncer = new_debouncer(delay, None, tx)?;
 
         for root in self.roots.keys() {
@@ -161,7 +161,8 @@ impl Watcher {
         None
     }
 
-    fn move_files(&mut self, path: &Path) -> Result<()> {
+    fn move_files(&mut self, path: impl AsRef<Path>) -> Result<()> {
+        let path = path.as_ref();
         if let Some(root) = self.root_for(path) {
             let library = &self.roots[&root];
 

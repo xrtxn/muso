@@ -68,9 +68,7 @@ fn run(opts: CliArgs) -> AnyResult<()> {
                 .map_or(config.search_format(&path).cloned(), |s| {
                     ParsedFormat::from_str(&s).ok()
                 })
-                .unwrap_or_else(|| {
-                    ParsedFormat::from_str("{artist}/{album}/{track} - {title}.{ext}").unwrap()
-                });
+                .unwrap_or_default();
 
             let options = Options {
                 format,

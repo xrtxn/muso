@@ -19,6 +19,12 @@ pub struct ParsedFormat {
     orig_string: String,
 }
 
+impl Default for ParsedFormat {
+    fn default() -> Self {
+        ParsedFormat::from_str("{artist}/{album}/{track} - {title}.{ext}").unwrap()
+    }
+}
+
 impl FromStr for ParsedFormat {
     type Err = Error;
 

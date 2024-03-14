@@ -113,6 +113,6 @@ impl Config {
         self.libraries
             .get(library)
             .and_then(|library| library.exfat_compat)
-            .unwrap_or(false)
+            .unwrap_or_else(|| false)
     }
 }
